@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "TransformComponent.h"
+
 namespace sf
 {
 	class RenderWindow;
@@ -10,8 +12,16 @@ namespace sf
 class Entity
 {
 public:
-	Entity(std::string friendlyName = "");
-	virtual ~Entity();
+	Entity(std::string friendlyName = "") : name(friendlyName) {};
+	virtual ~Entity() {};
+	
+	//----- Getters -----
+	std::string getName() {return name;};
+	
+	bool operator==(Entity& entity)
+	{
+		return (name == entity.getName());
+	}
 
 	virtual void Start();
 	virtual void Update(float fDeltaTime);
@@ -22,4 +32,8 @@ public:
 	 * Function that will be called each frame to draw the entity
 	*/
 	void Draw(sf::RenderWindow& window) const;
+	
+private:
+	TransformComponent transformComponent;
+	std::string name;
 };

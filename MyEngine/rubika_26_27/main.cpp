@@ -6,10 +6,32 @@
 #include <Profiler.h>
 #include <Logger.h>
 #include <DebugMgr.h>
+#include <Entity.h>
+#include <iostream>
+
+#include "Scene.h"
 
 int main()
 {
     gData.Init();
+    
+    Scene mainScene = Scene("MainScene");
+    
+    Entity Lolo = Entity("Lolo");
+    Entity Momo = Entity("Momo");
+    Entity Nico = Entity("Nico");
+    
+    mainScene.AddEntity(&Lolo);
+    mainScene.AddEntity(&Momo);
+    mainScene.AddEntity(&Nico);
+    
+    mainScene.RemoveEntity(&Lolo);
+    
+    std::vector<Entity*>entities = mainScene.getEntities();
+    for (Entity* e : entities)
+    {
+        std::cout << "Entities: " << e->getName() << std::endl;
+    }
 
     sf::RenderWindow window(sf::VideoMode({ 1080, 720 }), "SFML works!", sf::State::Windowed);
 
