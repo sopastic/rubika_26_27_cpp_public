@@ -12,15 +12,15 @@ namespace sf
 class Entity
 {
 public:
-	Entity(std::string friendlyName = "") : name(friendlyName) {};
+	Entity(std::string friendlyName = "") : m_name(friendlyName) {};
 	virtual ~Entity() {};
 	
 	//----- Getters -----
-	std::string getName() {return name;};
+	std::string getName() {return m_name;};
 	
 	bool operator==(Entity& entity)
 	{
-		return (name == entity.getName());
+		return (m_name == entity.getName());
 	}
 
 	virtual void Start();
@@ -35,5 +35,5 @@ public:
 	
 private:
 	TransformComponent transformComponent;
-	std::string name;
+	std::string m_name;
 };

@@ -8,14 +8,15 @@
 #include <DebugMgr.h>
 #include <Entity.h>
 #include <iostream>
-
-#include "Scene.h"
+#include "SceneMgr.h"
 
 int main()
 {
     gData.Init();
     
     Scene mainScene = Scene("MainScene");
+    Scene gameScene = Scene("GameScene");
+    SceneMgr sceneManager = SceneMgr();
     
     Entity Lolo = Entity("Lolo");
     Entity Momo = Entity("Momo");
@@ -25,21 +26,26 @@ int main()
     mainScene.AddEntity(&Momo);
     mainScene.AddEntity(&Nico);
     
-    mainScene.RemoveEntity(&Lolo);
+    mainScene.RemoveEntity(&Momo);
     
     std::vector<Entity*>entities = mainScene.getEntities();
     for (Entity* e : entities)
     {
         std::cout << "Entities: " << e->getName() << std::endl;
     }
+    
+    sceneManager.AddScene(&mainScene);
+    sceneManager.AddScene(&gameScene);
+    sceneManager.SetActiveScene("MainScene");
+    
 
     sf::RenderWindow window(sf::VideoMode({ 1080, 720 }), "SFML works!", sf::State::Windowed);
 
     ImGui::SFML::Init(window);
 
-    Logger::Info("This is an info message. That is useful");
-    Logger::Warning("This is a warning message. Should I worry?");
-    Logger::Error("This is an error message. Oh sh*t!!");
+    // Logger::Info("This is an info message. That is useful");
+    // Logger::Warning("This is a warning message. Should I worry?");
+    // Logger::Error("This is an error message. Oh sh*t!!");
 
     sf::Clock clock;
     clock.restart();

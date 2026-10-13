@@ -19,6 +19,12 @@ public:
 	
 	//----- Getters -----
 	std::vector<Entity*> getEntities() const { return m_entities; }
+	std::string getName() {return m_name;};
+	
+	bool operator==(Scene& scene)
+	{
+		return (m_name == scene.getName());
+	}
 
 	virtual void Start();
 	virtual void Update(float fDeltaTime);
