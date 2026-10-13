@@ -16,28 +16,28 @@ int main()
     
     Scene mainScene = Scene("MainScene");
     Scene gameScene = Scene("GameScene");
-    SceneMgr sceneManager = SceneMgr();
+    Scene jail = Scene("Jail");
     
     Entity Lolo = Entity("Lolo");
     Entity Momo = Entity("Momo");
     Entity Nico = Entity("Nico");
+    Entity Val = Entity("Val");
+    Entity Baptiste = Entity("Baptiste");
     
     mainScene.AddEntity(&Lolo);
     mainScene.AddEntity(&Momo);
     mainScene.AddEntity(&Nico);
-    
     mainScene.RemoveEntity(&Momo);
+    jail.AddEntity(&Baptiste);
+    jail.AddEntity(&Val);
     
-    std::vector<Entity*>entities = mainScene.getEntities();
-    for (Entity* e : entities)
-    {
-        std::cout << "Entities: " << e->getName() << std::endl;
-    }
-    
+    SceneMgr sceneManager = SceneMgr();
     sceneManager.AddScene(&mainScene);
     sceneManager.AddScene(&gameScene);
+    sceneManager.AddScene(&jail);
     sceneManager.SetActiveScene("MainScene");
     
+    sceneManager.ShowDebug();
 
     sf::RenderWindow window(sf::VideoMode({ 1080, 720 }), "SFML works!", sf::State::Windowed);
 

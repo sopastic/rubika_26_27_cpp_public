@@ -62,12 +62,12 @@ void Logger::DrawDebug()
 	}
 	ImGui::SameLine();
 
-	if (ImGui::Button("Clear"))
+	if (ImGui::Button(/*"Clear"*/ "SHUTUP"))
 	{
 		Messages.clear();
 	}
 
-	if (ImGui::BeginTable("Logs##LogConsole", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders))
+	if (ImGui::BeginTable("ScenesDebug", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders))
 	{
 		ImGui::TableSetupColumn("Type");
 		ImGui::TableSetupColumn("Message");
@@ -88,7 +88,7 @@ void Logger::DrawDebug()
 				}
 
 				color = ImVec4(1, 1, 1, 1);
-				text = "Info";
+				text = /*"Info"*/ "MEOW";
 			}
 			break;
 
@@ -100,7 +100,7 @@ void Logger::DrawDebug()
 				}
 
 				color = ImVec4(1, 1, 0, 1);
-				text = "Warning";
+				text = /*"Warning"*/ "MEOW";
 			}
 			break;
 
@@ -112,7 +112,7 @@ void Logger::DrawDebug()
 				}
 
 				color = ImVec4(1, 0, 0, 1);
-				text = "Error";
+				text = /*"Error"*/ "MEOW";
 			}
 			break;
 
