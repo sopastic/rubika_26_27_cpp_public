@@ -34,6 +34,7 @@ class SceneMgr : public IDebugable
     protected:
     struct sSceneInfo
     {
+        Scene* Scene;
         std::string Name;
         std::vector<std::string> EntitiesName;
     };

@@ -12,7 +12,7 @@
 
 int main()
 {
-    gData.Init();
+    gData.Init(); 
     
     Scene mainScene = Scene("MainScene");
     Scene gameScene = Scene("GameScene");
@@ -31,7 +31,7 @@ int main()
     jail.AddEntity(&Baptiste);
     jail.AddEntity(&Val);
     
-    SceneMgr sceneManager = SceneMgr();
+    SceneMgr& sceneManager = *gData.SceneMgr;
     sceneManager.AddScene(&mainScene);
     sceneManager.AddScene(&gameScene);
     sceneManager.AddScene(&jail);

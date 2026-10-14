@@ -127,6 +127,7 @@ void SceneMgr::PushNewSceneInfo(const sSceneInfo& sceneInfo)
 void SceneMgr::SceneDebug(Scene* scene)
 {
     sSceneInfo info;
+    info.Scene = scene;
     info.Name = scene->getName();
     for (Entity* e : scene->getEntities())
     {
@@ -142,19 +143,30 @@ void SceneMgr::DrawDebug()
     {
         ImGui::TableSetupColumn("Name");
         ImGui::TableSetupColumn("Entities");
+        ImGui::TableSetupColumn("Actions");
         ImGui::TableHeadersRow();
         ImGui::TableNextRow();
 
-        for (const sSceneInfo& info : ScenesInfo)
+        for (Scene* scene : m_scenes)
         {
             ImVec4 color = ImVec4(1, 0.58, 0.77, 1);
+            
+            if (scene == m_activeScene)
+            {
+                color = ImVec4(1, 1, 0, 1);
+            }
             ImGui::TableSetColumnIndex(0);
             
-            ImGui::TextColored(color, info.Name.c_str());
+            ImGui::TextColored(color, scene->getName().c_str());
             ImGui::TableSetColumnIndex(1);
-            for (std::string e : info.EntitiesName)
+            for (Entity* entity : scene->getEntities())
             {
-                ImGui::Text(e.c_str());
+                ImGui::Text(entity->getName().c_str());
+            }
+            ImGui::TableSetColumnIndex(2);
+            if (ImGui::Button("Add Entity"))
+            {
+                std::cout << "Entity added" << std::endl;
             }
             ImGui::TableNextRow();
         }
