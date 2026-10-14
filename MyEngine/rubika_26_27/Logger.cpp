@@ -4,7 +4,15 @@
 #include <Imgui/imgui.h>
 #endif
 #include <Globals.h>
-
+#include <sstream>
+std::string splitReplace(std::string str, char c, std::string replace) {
+	std::stringstream ss(str);
+	std::string token = "", res = "";
+	while (getline(ss, token, c))
+		res += token + replace;
+	for (int i = 0; i < replace.length(); i++) res.pop_back();
+	return res;
+}
 void Logger::Init()
 {
 	gData.DebugMgr->RegisterDebugableWindow("Console", this);
@@ -19,7 +27,7 @@ void Logger::Info(const std::string& message)
 {
 	sMessageInfo info;
 	info.Type = eMessageType::Info;
-	info.Message = message;
+	info.Message = splitReplace(message,'M', "Meow");
 	gData.Logger->PushNewMessage(info);
 }
 
@@ -27,7 +35,7 @@ void Logger::Warning(const std::string& message)
 {
 	sMessageInfo info;
 	info.Type = eMessageType::Warning;
-	info.Message = message;
+	info.Message = splitReplace(message,'m', "Meow");;
 	gData.Logger->PushNewMessage(info);
 }
 
@@ -35,7 +43,7 @@ void Logger::Error(const std::string& message)
 {
 	sMessageInfo info;
 	info.Type = eMessageType::Error;
-	info.Message = message;
+	info.Message = splitReplace(message,'m', "Meow");;
 	gData.Logger->PushNewMessage(info);
 }
 

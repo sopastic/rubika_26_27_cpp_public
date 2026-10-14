@@ -1,8 +1,9 @@
 #pragma once
-#include "SceneMgr.h"
 
 class DebugMgr;
 class Logger;
+class SceneMgr;
+class TextureMgr;
 
 class Globals
 {
@@ -21,6 +22,7 @@ public:
 	DebugMgr* DebugMgr;
 	Logger* Logger;
 	SceneMgr* SceneMgr;
+	TextureMgr* TextureMgr;
 };
 
 extern Globals gData;

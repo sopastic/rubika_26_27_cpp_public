@@ -2,6 +2,7 @@
 #include <Imgui/imgui.h>
 #include <Imgui/imgui-SFML.h>
 
+
 #include <Globals.h>
 #include <Profiler.h>
 #include <Logger.h>
@@ -9,6 +10,7 @@
 #include <Entity.h>
 #include <iostream>
 #include "SceneMgr.h"
+#include "TextureMgr.h"
 
 int main()
 {
@@ -36,6 +38,9 @@ int main()
     sceneManager.AddScene(&gameScene);
     sceneManager.AddScene(&jail);
     sceneManager.SetActiveScene("MainScene");
+    
+    TextureMgr& textureManager = *gData.TextureMgr;
+    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/Antonio_Belpaese.png");
     
     sceneManager.ShowDebug();
 

@@ -1,5 +1,6 @@
 ﻿#include "SceneMgr.h"
 
+#include <format>
 #include <iostream>
 #include <ostream>
 
@@ -164,9 +165,17 @@ void SceneMgr::DrawDebug()
                 ImGui::Text(entity->getName().c_str());
             }
             ImGui::TableSetColumnIndex(2);
-            if (ImGui::Button("Add Entity"))
+            static char str1[128] = "";
+            ImGui::InputTextWithHint(std::format("name input##{}", scene->getName()).c_str(), "enter entity name here", str1, IM_COUNTOF(str1));
+            if (ImGui::Button(std::format("Add Entity##{}", scene->getName()).c_str()))
             {
+                Entity* entity = new Entity(str1);
+                scene->AddEntity(entity);
                 std::cout << "Entity added" << std::endl;
+            }
+            if (ImGui::Button(std::format("Make Active scene##{}", scene->getName()).c_str()))
+            {
+                SetActiveScene(scene->getName());
             }
             ImGui::TableNextRow();
         }

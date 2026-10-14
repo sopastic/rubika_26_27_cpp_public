@@ -34,7 +34,6 @@ void Scene::AddEntity(Entity* entity)
     if (m_entities.empty())
     {
         m_entities.push_back(entity);
-        Logger::Info("First Entity added");
     }
     else
     {
@@ -42,11 +41,9 @@ void Scene::AddEntity(Entity* entity)
         {
             if (e == entity)
             {
-                Logger::Info("Entity alr exists");
                 break;
             }
             m_entities.push_back(entity);
-            Logger::Info("Entity added");
             break;
             
         }
@@ -61,8 +58,6 @@ void Scene::RemoveEntity(Entity* entity)
         {
             if (*it == entity)
             {
-                std::cout << (*it)->getName() << " removed" << std::endl;
-                Logger::Info("Entity removed");
                 m_entities.erase(it);
                 break;
             }

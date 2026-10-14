@@ -1,9 +1,13 @@
 #pragma once
 
 #include <SFML/Graphics/Texture.hpp>
+#include <rapidxml/rapidxml.hpp>
+#include <rapidxml/rapidxml_utils.hpp>
 
 #include <filesystem>
+#include <map>
 #include <string>
+#include "DebugMgr.h"
 
 struct AnimationData
 {
@@ -29,23 +33,33 @@ struct StaticTileData
 	bool IsRevertedY = false;
 };
 
+
+
 struct TextureData
 {
-	TextureData();
-	~TextureData();
+	enum Type
+	{
+		Animation,
+		Background,
+	};
+	TextureData(Type type) : type(type) {}
+	~TextureData() {}
 
-	sf::Texture Texture;
-	// Container of AnimationData AnimationsData;
-	// Container of StaticTileData StaticTilesData;
+	sf::Texture texture;
+	Type type;
+	AnimationData animationsData;
+	StaticTileData staticTilesData;
 
 	friend class TextureMgr;
 };
 
-class TextureMgr final
+class TextureMgr final : public IDebugable
 {
 public:
 	void Init();
 	void Shut();
+	
+	virtual void DrawDebug() override;
 
 	/*
 	 * Loads the texture using the given path, including its metadata.
@@ -54,9 +68,14 @@ public:
 	 * Return true otherwise.
 	*/
 	bool LoadTexture(const std::filesystem::path& path);
+	bool isFileExists(const std::filesystem::path& path);
+	bool isMetaExists(const std::string& path);
+	void fillAnimationData(AnimationData animationData);
+	void fillStaticData(StaticTileData staticTileData, rapidxml::xml_document<>& xmlDoc);
 
 	/*
 	 * Returns the corresponding TextureData using the name of the texture. Returns the default TextureData in case of an unknown name
 	 */
 	const TextureData& GetTextureData(const std::string& name) const;
+	std::map<std::string, TextureData> textures;
 };

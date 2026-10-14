@@ -2,6 +2,8 @@
 
 #include <DebugMgr.h>
 #include <Logger.h>
+#include "SceneMgr.h"
+#include "TextureMgr.h"
 
 Globals gData;
 
@@ -10,6 +12,7 @@ Globals::Globals() : FrameCount(0)
 	DebugMgr = new ::DebugMgr();
 	Logger = new ::Logger();
 	SceneMgr = new ::SceneMgr();
+	TextureMgr = new ::TextureMgr();
 }
 
 Globals::~Globals()
@@ -21,12 +24,14 @@ void Globals::Init()
 {
 	Logger->Init();
 	SceneMgr->Init();
+	TextureMgr->Init();
 }
 
 void Globals::Shut()
 {
 	Logger->Shut();
 	SceneMgr->Shut();
+	TextureMgr->Shut();
 }
 
 void Globals::Destroy()
@@ -39,6 +44,9 @@ void Globals::Destroy()
 	
 	delete SceneMgr;
 	SceneMgr = nullptr;
+	
+	delete TextureMgr;
+	TextureMgr = nullptr;
 }
 
 void Globals::IncrementFrameCount()
