@@ -42,13 +42,15 @@ struct TextureData
 		Animation,
 		Background,
 	};
-	TextureData(Type type) : type(type) {}
+	TextureData() {}
 	~TextureData() {}
 
 	sf::Texture texture;
 	Type type;
-	AnimationData animationsData;
-	StaticTileData staticTilesData;
+	std::map<std::string, AnimationData> animationsData;
+	std::map<std::string, StaticTileData> staticTilesData;
+	// AnimationData animationsData;
+	// StaticTileData staticTilesData;
 
 	friend class TextureMgr;
 };
@@ -70,8 +72,9 @@ public:
 	bool LoadTexture(const std::filesystem::path& path);
 	bool isFileExists(const std::filesystem::path& path);
 	bool isMetaExists(const std::string& path);
-	void fillAnimationData(AnimationData animationData);
-	void fillStaticData(StaticTileData staticTileData, rapidxml::xml_document<>& xmlDoc);
+	void parseStaticData(TextureData& textureData, const rapidxml::xml_node<>* firstNode);
+	void parseAnimData(TextureData& textureData, const rapidxml::xml_node<>* firstNode);
+	TextureData createTextureData(rapidxml::xml_document<>& doc);
 
 	/*
 	 * Returns the corresponding TextureData using the name of the texture. Returns the default TextureData in case of an unknown name
