@@ -1,4 +1,5 @@
 #pragma once
+#include "InputMgr.h"
 
 class DebugMgr;
 class SceneMgr;
@@ -24,6 +25,7 @@ public:
 	Logger* Logger;
 	SceneMgr* SceneMgr;
 	TextureMgr* TextureMgr;
+	InputMgr* InputMgr;
 };
 
 extern Globals gData;
