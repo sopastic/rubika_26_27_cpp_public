@@ -9,51 +9,60 @@
 #include <DebugMgr.h>
 #include <Entity.h>
 #include <iostream>
+
+#include "RenderComponent.h"
 #include "SceneMgr.h"
+#include "SpriteDrawable.h"
 #include "TextureMgr.h"
 
 int main()
 {
     gData.Init(); 
-    
-    Scene mainScene = Scene("MainScene");
-    Scene gameScene = Scene("GameScene");
-    Scene jail = Scene("Jail");
-    
-    Entity Lolo = Entity("Lolo");
-    Entity Momo = Entity("Momo");
-    Entity Nico = Entity("Nico");
-    Entity Val = Entity("Val");
-    Entity Baptiste = Entity("Baptiste");
-    
-    mainScene.AddEntity(&Lolo);
-    mainScene.AddEntity(&Momo);
-    mainScene.AddEntity(&Nico);
-    mainScene.RemoveEntity(&Momo);
-    jail.AddEntity(&Baptiste);
-    jail.AddEntity(&Val);
-    
-    SceneMgr& sceneManager = *gData.SceneMgr;
-    sceneManager.AddScene(&mainScene);
-    sceneManager.AddScene(&gameScene);
-    sceneManager.AddScene(&jail);
-    sceneManager.SetActiveScene("MainScene");
-    
-    TextureMgr& textureManager = *gData.TextureMgr;
-    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/Antonio_Belpaese.png");
-    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_1.png");
-    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_2.png");
-    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_3.png");
-    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_4.png");
-    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_5.png");
-    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/Basement.png");
-    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/IsaacSprite.png");
-    
-    sceneManager.ShowDebug();
 
     sf::RenderWindow window(sf::VideoMode({ 1080, 720 }), "SFML works!", sf::State::Windowed);
 
     ImGui::SFML::Init(window);
+    
+    const char* texturePath = "C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/IsaacSprite.png";
+    
+    gData.TextureMgr->LoadTexture(texturePath);
+    
+    // Scenes
+    Scene mainScene = Scene("MainScene");
+    Scene gameScene = Scene("GameScene");
+    Scene jail = Scene("Jail");
+    
+    // Entities
+    Entity Lolo = Entity("Lolo");
+    {
+        TransformComponent* tc = Lolo.AddComponent<TransformComponent>();
+        {
+            tc->SetWorldPosition(sf::Vector2f(100.f, 100.f));
+        }
+        RenderComponent* rc = Lolo.AddComponent<RenderComponent>();
+        {
+            SpriteDrawable* bodySprite = rc->AddNewDrawable<SpriteDrawable>("Body", sf::Vector2f(2, 0), 0, sf::Vector2f(1, 1));
+            bodySprite->SetVisibility(true);
+            bodySprite->SetTexture(texturePath);
+            bodySprite->SetAnimation("Body_Vertical");
+            SpriteDrawable* headSprite = rc->AddNewDrawable<SpriteDrawable>("Head", sf::Vector2f(-2.5f, -20), 0, sf::Vector2f(1, 1));
+            headSprite->SetVisibility(true);
+            headSprite->SetTexture(texturePath);
+            headSprite->SetAnimation("Head_Down");
+        }
+    }
+    
+    // Modify entities from scenes
+    mainScene.AddEntity(&Lolo);
+    
+    // Add scenes to SceneMgr
+    gData.SceneMgr->AddScene(&mainScene);
+    gData.SceneMgr->AddScene(&gameScene);
+    gData.SceneMgr->AddScene(&jail);
+    gData.SceneMgr->SetActiveScene("MainScene");
+    gData.SceneMgr->Start();
+    
+    gData.SceneMgr->ShowDebug();
 
     // Logger::Info("This is an info message. That is useful");
     // Logger::Warning("This is a warning message. Should I worry?");
@@ -103,6 +112,8 @@ int main()
 
         PROFILER_EVENT_BEGIN(PROFILER_COLOR_GREEN, "Draw");
         window.clear();
+        
+        gData.SceneMgr->Draw(window);
 
 #ifdef _USE_IMGUI
         ImGui::SFML::Render(window);

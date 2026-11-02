@@ -1,230 +1,323 @@
 ﻿#include "TextureMgr.h"
-#include "Globals.h"
+
+#include <Globals.h>
+#include <rapidxml/rapidxml_utils.hpp>
+
 #ifdef _USE_IMGUI
 #include <Imgui/imgui.h>
 #include <Imgui/imgui-SFML.h>
 #endif
-#include <iostream>
 
-#include "Logger.h"
+#include <assert.h>
+#include <filesystem>
+#include <iostream>
 
 void TextureMgr::Init()
 {
-    gData.DebugMgr->RegisterDebugableWindow("Texture", this);
+	gData.DebugMgr->RegisterDebugableWindow("TextureMgr", this);
 }
 
 void TextureMgr::Shut()
 {
-    gData.DebugMgr->UnregisterDebugableWindow("Texture");
+	gData.DebugMgr->UnregisterDebugableWindow("TextureMgr");
 }
 
 bool TextureMgr::LoadTexture(const std::filesystem::path& path)
 {
-    if (!isFileExists(path))
-    {
-        Logger::Warning("Texture doesn't exist");
-        return false;
-    }
-    Logger::Info("Texture exist");
-    
-    std::string pathStr = path.string();
-    pathStr.replace(pathStr.length()-3, 3, "xml");
-    if (!isMetaExists(pathStr))
-    {
-        Logger::Warning("Metadata doesn't exist");
-        return false;
-    }
-    Logger::Info("Metadata exist");
-    
-    const char* pathXmlChar = pathStr.c_str();
-    rapidxml::file<> xmlFile = rapidxml::file<>(pathXmlChar);
-    rapidxml::xml_document<> doc;
-    
-    try{doc.parse<0>(xmlFile.data());}
-    catch (std::exception& e)
-    {
-        Logger::Warning("Failed to parse XML file");
-        std::cerr << e.what() << std::endl;
-    }
-    
-    TextureData textureData = createTextureData(doc);
-    const sf::Texture texture(path);
-    textureData.texture = texture;
-    
-    std::string fileName = path.filename().string();
-    fileName.erase(fileName.find_last_of('.'));
-    textures.insert({fileName, textureData});
+	if (!std::filesystem::exists(path.native()))
+	{
+		std::cerr << "Texture file doesn't exist " << path << std::endl;
+		return false;
+	}
 
-    return true;
-}
+	std::filesystem::path metadataPath = path;
+	metadataPath = metadataPath.replace_extension(".xml");
+	if (!std::filesystem::exists(metadataPath.native()))
+	{
+		std::cerr << "Texture metadata file doesn't exist " << metadataPath << std::endl;
+		return false;
+	}
 
-bool TextureMgr::isFileExists(const std::filesystem::path& path)
-{
-    return std::filesystem::exists(path);
-}
+	auto p = Textures.emplace(std::piecewise_construct,
+		std::forward_as_tuple(path.string()),
+		std::forward_as_tuple());
 
-bool TextureMgr::isMetaExists(const std::string& path)
-{
-    return std::filesystem::exists(path);
-}
+	if (!p.second)
+	{
+		std::cerr << "LoadTexture: Internal error. Cannot emplace in map" << std::endl;
+		return false;
+	}
 
-TextureData TextureMgr::createTextureData(rapidxml::xml_document<>& doc)
-{
-    TextureData* textureData = new TextureData();
-    rapidxml::xml_node<> *firstNode = doc.first_node();
-    
-    if (strcmp(firstNode->name(), "Animations") != 0 && strcmp(firstNode->name(), "Backgrounds") != 0)
-    {
-        Logger::Warning("First node is not valid");
-        return *textureData;
-    }
-    
-    if (strcmp(firstNode->name(), "Animations") == 0)
-    {
-        textureData->type = TextureData::Animation;
-        parseAnimData(*textureData, firstNode);
-    }
-    else if (strcmp(firstNode->name(), "Backgrounds") == 0)
-    {
-        textureData->type = TextureData::Background;
-        parseStaticData(*textureData, firstNode);
-    }
-    return *textureData;
-}
+	TextureData& textureData = p.first->second;
+	if (!textureData.Texture.loadFromFile(path.string()))
+	{
+		return false;
+	}
 
-void TextureMgr::parseStaticData(TextureData& textureData, const rapidxml::xml_node<>* firstNode)
-{
-    rapidxml::xml_node<> *firstTile = firstNode->first_node(); //first tile
-    rapidxml::xml_node<> *previousTile;
-    rapidxml::xml_node<> *newTile = firstTile;
-        
-    bool isDone = false;
-    while (!isDone)
-    {
-        StaticTileData staticTileData;
-        std::string tileName = newTile->first_attribute()->value();
-            
-        rapidxml::xml_node<> *valueX = newTile->first_node(); //1 value
-        staticTileData.StartX = int(valueX->value());
-            
-        rapidxml::xml_node<> *valueY = valueX->next_sibling(); //2 value
-        staticTileData.StartY = int(valueY->value());
-            
-        rapidxml::xml_node<> *valueSizeX = valueY->next_sibling(); //3 value
-        staticTileData.SizeX = int(valueSizeX->value());
-            
-        rapidxml::xml_node<> *valueSizeY = valueSizeX->next_sibling(); //4 value
-        staticTileData.SizeY = int(valueSizeY->value());
-            
-        rapidxml::xml_node<> *valueRevertedX = valueSizeY->next_sibling(); //5 value
-        staticTileData.IsRevertedX = bool(valueRevertedX->value());
-            
-        rapidxml::xml_node<> *valueRevertedY = valueRevertedX->next_sibling(); //6 value
-        staticTileData.IsRevertedY = bool(valueRevertedY->value());
-            
-        previousTile = newTile;
-        newTile = previousTile->next_sibling();
-            
-        //end
-        textureData.staticTilesData.insert({tileName, staticTileData});
-            
-        if (newTile == 0){isDone = true;}
-    }
-    Logger::Info("Parse Static Data done.");
-}
+	if (!LoadTextureMetadata(metadataPath, textureData))
+	{
+		return false;
+	}
 
-void TextureMgr::parseAnimData(TextureData& textureData, const rapidxml::xml_node<>* firstNode)
-{
-    rapidxml::xml_node<> *firstTile = firstNode->first_node(); //first tile
-    rapidxml::xml_node<> *previousTile;
-    rapidxml::xml_node<> *newTile = firstTile;
-        
-    bool isDone = false;
-    while (!isDone)
-    {
-        AnimationData* animationData = new AnimationData;
-        std::string tileName = newTile->first_attribute()->value();
-            
-        rapidxml::xml_node<> *valueX = newTile->first_node(); //1 value
-        animationData->StartX = *valueX->value() - '0';
-            
-        rapidxml::xml_node<> *valueY = valueX->next_sibling(); //2 value
-        animationData->StartY = int(valueY->value());
-            
-        rapidxml::xml_node<> *valueSizeX = valueY->next_sibling(); //3 value
-        animationData->SizeX = int(valueSizeX->value());
-            
-        rapidxml::xml_node<> *valueSizeY = valueSizeX->next_sibling(); //4 value
-        animationData->SizeY = int(valueSizeY->value());
-            
-        rapidxml::xml_node<> *valueOffsetX = valueSizeY->next_sibling(); //5 value
-        animationData->OffsetX = int(valueOffsetX->value());
-            
-        rapidxml::xml_node<> *valueOffsetY = valueOffsetX->next_sibling(); //6 value
-        animationData->OffsetY = int(valueOffsetY->value());
-        
-        rapidxml::xml_node<> *valueSpriteNum = valueOffsetY->next_sibling(); //7 value
-        animationData->AnimationSpriteCount = int(valueSpriteNum->value());
-        
-        rapidxml::xml_node<> *valueSpritesOnLine = valueSpriteNum->next_sibling(); //8 value
-        animationData->SpriteOnLine = int(valueSpritesOnLine->value());
-        
-        rapidxml::xml_node<> *valueReverted = valueSpritesOnLine->next_sibling(); //9 value
-        animationData->IsReverted = bool(valueReverted->value());
-        
-        rapidxml::xml_node<> *valueTimeBetweenAnim = valueReverted->next_sibling(); //10 value
-        if (valueTimeBetweenAnim != 0){animationData->TimeBetweenAnimationInS = int(valueTimeBetweenAnim->value());}
-            
-        previousTile = newTile;
-        newTile = previousTile->next_sibling();
-        
-        //end
-        textureData.animationsData.insert({tileName, *animationData});
-            
-        if (newTile == 0){isDone = true;}
-    }
-    Logger::Info("Parse Anim Data done.");
+	return true;
 }
 
 const TextureData& TextureMgr::GetTextureData(const std::string& name) const
 {
-    if (!textures.empty())
-    {
-        if (textures.contains(name))
-        {
-            return textures.find(name)->second;
-        }
-    }
-    Logger::Warning("Could not find texture \"" + name + "\"");
-    return TextureData();
+	assert(Textures.find(name) != Textures.end());
+	return Textures.at(name);
+}
+
+sf::Texture emptyTexture;
+
+const sf::Texture& TextureMgr::GetEmptyTexture()
+{
+	return emptyTexture;
+}
+
+bool TextureMgr::LoadTextureMetadata(const std::filesystem::path& path, TextureData& textureData)
+{
+	rapidxml::file<> metadataFile(path.string().c_str());
+	if (metadataFile.size() == 0)
+	{
+		std::cerr << "LoadTextureMetadata: Cannot open file " << path << std::endl;
+		return false;
+	}
+
+	rapidxml::xml_document metadataXml;
+	metadataXml.parse<0>(metadataFile.data());
+
+	if (rapidxml::xml_node<>* node = metadataXml.first_node("Animations"))
+	{
+		if (!LoadAnimationMetadata(node, textureData))
+		{
+			return false;
+		}
+	}
+
+	if (rapidxml::xml_node<>* node = metadataXml.first_node("Backgrounds"))
+	{
+		if (!LoadStaticTileMetadata(node, textureData))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool TextureMgr::LoadAnimationMetadata(rapidxml::xml_node<>* node, TextureData& textureData)
+{
+	if (!node)
+	{
+		return false;
+	}
+
+	rapidxml::xml_node<>* animationNode = node->first_node();
+	while (animationNode)
+	{
+		rapidxml::xml_attribute<>* nameAttribute = animationNode->first_attribute("Name");
+		if (nameAttribute)
+		{
+			auto p = textureData.AnimationsData.emplace(std::string(nameAttribute->value(), nameAttribute->value_size()), AnimationData());
+			if (p.second)
+			{
+				AnimationData& data = p.first->second;
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("X"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.StartX = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("Y"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.StartY = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("SizeX"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.SizeX = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("SizeY"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.SizeY = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("OffsetX"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.OffsetX = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("OffsetY"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.OffsetY = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("SpriteNum"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.AnimationSpriteCount = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("SpritesOnLine"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.SpriteOnLine = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("Reverted"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.IsReverted = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = animationNode->first_node("TimeBetweenAnimation"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.TimeBetweenAnimationInS = std::stof(value.c_str());
+				}
+			}
+			else
+			{
+				std::cerr << "LoadAnimationMetadata: Cannot add animation " << nameAttribute->value() << ". Ignore it" << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << "LoadAnimationMetadata: Find a animation node with no name. Ignore it" << std::endl;
+		}
+
+		animationNode = animationNode->next_sibling();
+	}
+
+	return true;
+}
+
+bool TextureMgr::LoadStaticTileMetadata(rapidxml::xml_node<>* node, TextureData& textureData)
+{
+	if (!node)
+	{
+		return false;
+	}
+
+	rapidxml::xml_node<>* tileNode = node->first_node();
+	while (tileNode)
+	{
+		rapidxml::xml_attribute<>* nameAttribute = tileNode->first_attribute("Name");
+		if (nameAttribute)
+		{
+			auto p = textureData.StaticTilesData.emplace(std::string(nameAttribute->value(), nameAttribute->value_size()), StaticTileData());
+			if (p.second)
+			{
+				StaticTileData& data = p.first->second;
+				if (rapidxml::xml_node<>* innerNode = tileNode->first_node("X"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.StartX = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = tileNode->first_node("Y"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.StartY = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = tileNode->first_node("SizeX"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.SizeX = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = tileNode->first_node("SizeY"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.SizeY = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = tileNode->first_node("RevertedX"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.IsRevertedX = atoi(value.c_str());
+				}
+
+				if (rapidxml::xml_node<>* innerNode = tileNode->first_node("RevertedY"))
+				{
+					std::string value(innerNode->value(), innerNode->value_size());
+					data.IsRevertedY = atoi(value.c_str());
+				}
+			}
+			else
+			{
+				std::cerr << "LoadStaticTileMetadata: Cannot add static Data " << nameAttribute->value() << ". Ignore it" << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << "LoadStaticTileMetadata: Find a tile node with no name. Ignore it" << std::endl;
+		}
+
+		tileNode = tileNode->next_sibling();
+	}
+
+	return true;
 }
 
 void TextureMgr::DrawDebug()
 {
 #ifdef _USE_IMGUI
-    if (ImGui::BeginTable("Logs##LogConsole", 1, ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders))
-    {
-        ImGui::TableSetupColumn("Texture");
-        ImGui::TableHeadersRow();
-        ImGui::TableNextRow();
-        ImVec4 color = ImVec4(1, 0.58, 0.77, 1);
-        ImGui::TableSetColumnIndex(0);
-        //ImGui::TextColored(color, "SDFDFSF");
-        
-        std::map<std::string, int>::iterator it;
 
-        for (auto const& [key, val] : textures)
-        {
-            ImGui::Image(val.texture);
-            for (auto const& [name, animData] : val.animationsData)
-            {
-                std::string str = std::to_string(animData.StartX);
-                std::string startX = "StartX: " + str;
-                ImGui::Text(startX.c_str());
-            }
-        }
+	const auto flags = ImGuiTableFlags_Resizable | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_Borders;
 
-        ImGui::EndTable();
-    }
+	if (ImGui::BeginTable("##Textures", 4, flags))
+	{
+		ImGui::TableSetupColumn("Name");
+		ImGui::TableSetupColumn("Width");
+		ImGui::TableSetupColumn("Height");
+		ImGui::TableSetupColumn("Image");
+		ImGui::TableHeadersRow();
+
+		for (const auto& [name, data] : Textures)
+		{
+			ImGui::TableNextColumn();
+			ImGui::TextWrapped(name.c_str());
+			ImGui::TableNextColumn();
+			ImGui::TextWrapped("%d", data.Texture.getSize().x);
+			ImGui::TableNextColumn();
+			ImGui::TextWrapped("%d", data.Texture.getSize().y);
+			ImGui::TableNextColumn();
+
+			const sf::Vector2f size((float)data.Texture.getSize().x, (float)data.Texture.getSize().y);
+			const float displayMaxSizeX = 200;
+			const float displayMaxSizeY = 200;
+
+			sf::Vector2f displaySize;
+			if (size.x < displayMaxSizeX && size.y < displayMaxSizeY)
+			{
+				displaySize = size;
+			}
+			else if (size.x > size.y)
+			{
+				displaySize.x = displayMaxSizeX;
+				displaySize.y = size.y / size.x * displayMaxSizeY;
+			}
+			else
+			{
+				displaySize.x = size.x / size.y * displayMaxSizeX;
+				displaySize.y = displayMaxSizeY;
+			}
+
+			ImGui::Image(data.Texture, displaySize);
+
+			ImGui::TableNextRow();
+		}
+		ImGui::EndTable();
+	}
+
 #endif
 }

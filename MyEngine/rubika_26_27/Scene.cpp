@@ -4,6 +4,7 @@
 #include <ostream>
 
 #include "Logger.h"
+#include "ImGui/imgui.h"
 
 void Scene::Start()
 {
@@ -26,6 +27,14 @@ void Scene::Destroy()
     for (Entity* e : m_entities)
     {
         e->Destroy();
+    }
+}
+
+void Scene::Draw(sf::RenderWindow& window) const
+{
+    for (Entity* e : m_entities)
+    {
+        e->Draw(window);
     }
 }
 
@@ -62,5 +71,22 @@ void Scene::RemoveEntity(Entity* entity)
                 break;
             }
         }
+    }
+}
+
+void Scene::DrawDebug()
+{
+    for (Entity* e : m_entities)
+    {
+        ImGui::PushID(e);
+
+        const char* preview = e->getName().size() ? e->getName().c_str() : "Entity";
+        if (ImGui::TreeNode(preview))
+        {
+            e->DrawDebug();
+            ImGui::TreePop();
+        }
+
+        ImGui::PopID();
     }
 }

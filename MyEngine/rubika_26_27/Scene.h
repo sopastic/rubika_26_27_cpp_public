@@ -19,7 +19,7 @@ public:
 	
 	//----- Getters -----
 	std::vector<Entity*> getEntities() const { return m_entities; }
-	std::string getName() {return m_name;};
+	std::string getName() {return m_name;}
 	
 	bool operator==(Scene& scene)
 	{
@@ -38,6 +38,7 @@ public:
 	 * Function that will be called each frame to draw the entity
 	*/
 	void Draw(sf::RenderWindow& window) const;
+	void DrawDebug();
 	
 private:
 	std::vector<Entity*> m_entities;

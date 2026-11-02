@@ -26,6 +26,7 @@ class SceneMgr : public IDebugable
     static void SceneDebug(Scene* scene);
     virtual void DrawDebug() override;
     void ShowDebug();
+    void Draw(sf::RenderWindow& window) const;
     
     private:
         std::vector<Scene*> m_scenes;

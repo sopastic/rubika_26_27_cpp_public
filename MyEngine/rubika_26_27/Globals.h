@@ -12,6 +12,7 @@ public:
 	~Globals();
 
 	void Init();
+	void Update(float deltaTime);
 	void Shut();
 	void Destroy();
 

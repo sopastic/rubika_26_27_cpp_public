@@ -1,5 +1,7 @@
 #include "TransformComponent.h"
 
+#include "ImGui/imgui.h"
+
 TransformComponent::TransformComponent(Entity& entity) : IComponent(entity)
 {
 	WorldPosition = sf::Vector2f();
@@ -78,4 +80,16 @@ void TransformComponent::UpdateMatrix()
 	Matrix.translate(WorldPosition);
 	Matrix.rotate(sf::degrees(Rotation));
 	Matrix.scale(Scale);
+}
+
+void TransformComponent::DrawDebug()
+{
+#ifdef _USE_IMGUI
+	if (ImGui::InputFloat2("Translation", &WorldPosition.x))
+		UpdateMatrix();
+	if (ImGui::SliderFloat("Rotation", &Rotation, -180, 180))
+		UpdateMatrix();
+	if (ImGui::InputFloat2("Scale", &Scale.x))
+		UpdateMatrix();
+#endif
 }

@@ -34,6 +34,11 @@ void Globals::Shut()
 	TextureMgr->Shut();
 }
 
+void Globals::Update(float deltaTime)
+{
+	SceneMgr->Update(deltaTime);
+}
+
 void Globals::Destroy()
 {
 	delete DebugMgr;

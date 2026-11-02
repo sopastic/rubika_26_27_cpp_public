@@ -17,6 +17,9 @@ public:
 	virtual void Update(float fDeltaTime) = 0;
 
 	virtual void Destroy() = 0;
+	
+	virtual void DrawDebug() = 0;
+	virtual const char* GetName() const = 0;
 
 protected:
 	Entity& GetEntity() const { return m_parentEntity; };

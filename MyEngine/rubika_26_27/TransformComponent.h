@@ -36,6 +36,9 @@ public:
 	void Start() override;
 	void Update(float fDeltaTime) override;
 	void Destroy() override;
+	
+	const char* GetName() const override { return "TransformComponent"; }
+	void DrawDebug() override;
 
 private:
 	sf::Transform Matrix;
