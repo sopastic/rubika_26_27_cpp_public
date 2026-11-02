@@ -83,7 +83,6 @@ TextureData TextureMgr::createTextureData(rapidxml::xml_document<>& doc)
     {
         textureData->type = TextureData::Animation;
         parseAnimData(*textureData, firstNode);
-        std::cout << textureData->animationsData.size() << "\n";
     }
     else if (strcmp(firstNode->name(), "Backgrounds") == 0)
     {
@@ -143,44 +142,44 @@ void TextureMgr::parseAnimData(TextureData& textureData, const rapidxml::xml_nod
     bool isDone = false;
     while (!isDone)
     {
-        AnimationData animationData;
+        AnimationData* animationData = new AnimationData;
         std::string tileName = newTile->first_attribute()->value();
             
         rapidxml::xml_node<> *valueX = newTile->first_node(); //1 value
-        animationData.StartX = int(valueX->value());
+        animationData->StartX = *valueX->value() - '0';
             
         rapidxml::xml_node<> *valueY = valueX->next_sibling(); //2 value
-        animationData.StartY = int(valueY->value());
+        animationData->StartY = int(valueY->value());
             
         rapidxml::xml_node<> *valueSizeX = valueY->next_sibling(); //3 value
-        animationData.SizeX = int(valueSizeX->value());
+        animationData->SizeX = int(valueSizeX->value());
             
         rapidxml::xml_node<> *valueSizeY = valueSizeX->next_sibling(); //4 value
-        animationData.SizeY = int(valueSizeY->value());
+        animationData->SizeY = int(valueSizeY->value());
             
         rapidxml::xml_node<> *valueOffsetX = valueSizeY->next_sibling(); //5 value
-        animationData.OffsetX = int(valueOffsetX->value());
+        animationData->OffsetX = int(valueOffsetX->value());
             
         rapidxml::xml_node<> *valueOffsetY = valueOffsetX->next_sibling(); //6 value
-        animationData.OffsetY = int(valueOffsetY->value());
+        animationData->OffsetY = int(valueOffsetY->value());
         
         rapidxml::xml_node<> *valueSpriteNum = valueOffsetY->next_sibling(); //7 value
-        animationData.AnimationSpriteCount = int(valueSpriteNum->value());
+        animationData->AnimationSpriteCount = int(valueSpriteNum->value());
         
         rapidxml::xml_node<> *valueSpritesOnLine = valueSpriteNum->next_sibling(); //8 value
-        animationData.SpriteOnLine = int(valueSpritesOnLine->value());
+        animationData->SpriteOnLine = int(valueSpritesOnLine->value());
         
         rapidxml::xml_node<> *valueReverted = valueSpritesOnLine->next_sibling(); //9 value
-        animationData.IsReverted = bool(valueReverted->value());
+        animationData->IsReverted = bool(valueReverted->value());
         
         rapidxml::xml_node<> *valueTimeBetweenAnim = valueReverted->next_sibling(); //10 value
-        animationData.TimeBetweenAnimationInS = int(valueTimeBetweenAnim->value());
+        if (valueTimeBetweenAnim != 0){animationData->TimeBetweenAnimationInS = int(valueTimeBetweenAnim->value());}
             
         previousTile = newTile;
         newTile = previousTile->next_sibling();
-            
+        
         //end
-        textureData.animationsData.insert({tileName, animationData});
+        textureData.animationsData.insert({tileName, *animationData});
             
         if (newTile == 0){isDone = true;}
     }
@@ -191,12 +190,13 @@ const TextureData& TextureMgr::GetTextureData(const std::string& name) const
 {
     if (!textures.empty())
     {
-        // if (textures.find(name))
-        // {
-        //     //TODO: I NEED VAL LINE LOL
-        // }
+        if (textures.contains(name))
+        {
+            return textures.find(name)->second;
+        }
     }
     Logger::Warning("Could not find texture \"" + name + "\"");
+    return TextureData();
 }
 
 void TextureMgr::DrawDebug()
@@ -209,10 +209,20 @@ void TextureMgr::DrawDebug()
         ImGui::TableNextRow();
         ImVec4 color = ImVec4(1, 0.58, 0.77, 1);
         ImGui::TableSetColumnIndex(0);
-        ImGui::TextColored(color, "SDFDFSF");
-        // std::filesystem::path path = "C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/rubika_26_27/69ee824f3313ed.jpg";
-        // const sf::Texture texture(path);
-        // ImGui::Image(texture, ImVec2(100, 100));
+        //ImGui::TextColored(color, "SDFDFSF");
+        
+        std::map<std::string, int>::iterator it;
+
+        for (auto const& [key, val] : textures)
+        {
+            ImGui::Image(val.texture);
+            for (auto const& [name, animData] : val.animationsData)
+            {
+                std::string str = std::to_string(animData.StartX);
+                std::string startX = "StartX: " + str;
+                ImGui::Text(startX.c_str());
+            }
+        }
 
         ImGui::EndTable();
     }

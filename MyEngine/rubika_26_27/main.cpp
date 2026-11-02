@@ -41,6 +41,13 @@ int main()
     
     TextureMgr& textureManager = *gData.TextureMgr;
     textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/Antonio_Belpaese.png");
+    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_1.png");
+    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_2.png");
+    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_3.png");
+    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_4.png");
+    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/enemy_texture_5.png");
+    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/Basement.png");
+    textureManager.LoadTexture("C:/Users/s.laurain/Documents/GitHub/rubika_26_27_cpp_public/MyEngine/Ressources/IsaacSprite.png");
     
     sceneManager.ShowDebug();
 

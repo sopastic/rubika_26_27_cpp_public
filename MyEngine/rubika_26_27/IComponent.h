@@ -8,9 +8,9 @@ class IComponent abstract
 {
 public:
 	IComponent() = delete;
-	IComponent(Entity& entity);
+	IComponent(Entity& entity) : m_parentEntity(entity) {}
 
-	virtual ~IComponent();
+	virtual ~IComponent() = default;
 
 	virtual void Start() = 0;
 
@@ -19,8 +19,8 @@ public:
 	virtual void Destroy() = 0;
 
 protected:
-	Entity& GetEntity() const { return ParentEntity; };
+	Entity& GetEntity() const { return m_parentEntity; };
 
 private:
-	Entity& ParentEntity;
+	Entity& m_parentEntity;
 };

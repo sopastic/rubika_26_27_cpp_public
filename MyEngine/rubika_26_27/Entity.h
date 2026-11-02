@@ -12,11 +12,11 @@ namespace sf
 class Entity
 {
 public:
-	Entity(std::string friendlyName = "") : m_name(friendlyName) {};
-	virtual ~Entity() {};
+	Entity(std::string friendlyName = "") : transformComponent(*this), m_name(friendlyName){}
+	virtual ~Entity() {}
 	
 	//----- Getters -----
-	std::string getName() {return m_name;};
+	std::string getName() {return m_name;}
 	
 	bool operator==(Entity& entity)
 	{
