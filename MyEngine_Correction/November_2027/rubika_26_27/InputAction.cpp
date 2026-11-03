@@ -1,5 +1,12 @@
 ﻿#include "InputAction.h"
 
+#include "Logger.h"
+
+InputAction::InputAction(const std::string& name) : ActionName(name)
+{
+    ActionNameHash = std::hash<std::string>{}(ActionName);
+}
+
 void InputAction::SetActionName(const std::string& name)
 {
     ActionName = name;
@@ -12,8 +19,8 @@ void InputAction::SetValue(float value)
 
 void InputAction::RegisterCallback(const std::string& debugName, std::function<void(float)> callback, void* owner)
 {
-    // sCallbackInfo cbInfo = sCallbackInfo(debugName, callback, owner);
     Callbacks.push_back(sCallbackInfo(debugName, callback, owner));
+    Logger::Info("Registered callback");
 }
 
 void InputAction::UnregisterCallbacks(void* owner)
@@ -30,8 +37,29 @@ void InputAction::RunCallbacks()
 {
     if (Callbacks.empty()) return;
     
-    for (const sCallbackInfo& cb : Callbacks)
+    if (Value != 0.0f)
     {
-            cb.Callback(Value);
+        for (const sCallbackInfo& cb : Callbacks)
+        {
+            cb.Callback();
+        }
     }
 }
+
+void InputAction::AddKey(sf::Keyboard::Key key)
+{
+    Keys.push_back(key);
+    Logger::Info("Key added");
+}
+
+// void InputAction::RemoveKey(sf::Keyboard::Key key)
+// {
+//     for (auto it = Keys.begin(); it != Keys.end();)
+//     {
+//         if (it == key)
+//         {
+//             Keys.erase(it);
+//         }
+//     }
+// }
+

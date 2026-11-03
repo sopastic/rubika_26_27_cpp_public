@@ -1,6 +1,6 @@
 #pragma once
-#include "InputMgr.h"
 
+class InputMgr;
 class DebugMgr;
 class SceneMgr;
 class TextureMgr;
@@ -21,11 +21,11 @@ public:
 
 	unsigned long long FrameCount;
 
+	InputMgr* InputMgr;
 	DebugMgr* DebugMgr;
 	Logger* Logger;
 	SceneMgr* SceneMgr;
 	TextureMgr* TextureMgr;
-	InputMgr* InputMgr;
 };
 
 extern Globals gData;

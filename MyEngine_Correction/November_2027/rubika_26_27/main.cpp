@@ -9,9 +9,16 @@
 #include <Profiler.h>
 #include <Logger.h>
 #include <Entity.h>
+#include <iostream>
 #include <TransformComponent.h>
 #include <RenderComponent.h>
 #include <SpriteDrawable.h>
+
+#include "InputAction.h"
+#include "InputMgr.h"
+#include "../MovementComponent.h"
+
+class MovementComponent;
 
 int main()
 {
@@ -44,10 +51,31 @@ int main()
             headSprite->SetTexture(texturePath);
             headSprite->SetAnimation("Head_Down");
         }
+        MovementComponent* mc = entity->AddComponent<MovementComponent>();
+        {
+            InputAction* up = gData.InputMgr->CreateInputAction("Up");
+            gData.InputMgr->CreateInputAction("Down");
+            gData.InputMgr->CreateInputAction("Left");
+            gData.InputMgr->CreateInputAction("Right");
+    
+            gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::W, "Up");
+            gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::S, "Down");
+    
+            up->RegisterCallback("MoveUp", [mc](float __f) {mc->MoveY(-1);}, mc);
+            up->RegisterCallback("MoveDown", [mc](float __f) {mc->MoveY(1);}, mc);
+        }
+        
     }
+    std::vector<sf::Keyboard::Key> myKeys = gData.InputMgr->GetInputAction("Up")->GetKeys();
+    std::cout << myKeys.size() << std::endl;
+    for (sf::Keyboard::Key key : myKeys)
+    {
+        std::cout << isKeyPressed(key) << std::endl;
+    }
+    
     gData.SceneMgr->SetActiveScene("Main");
     gData.SceneMgr->Start();
-
+    
     sf::Clock clock;
     clock.restart();
 

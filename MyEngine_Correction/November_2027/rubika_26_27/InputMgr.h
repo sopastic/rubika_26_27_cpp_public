@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <SFML/Window/Keyboard.hpp>
+
 #include "DebugMgr.h"
 #include "InputAction.h"
 
@@ -10,12 +12,19 @@ public:
     void Update(float deltaTime);
     void Shut();
     
-    void CreateInputAction(std::string& actionName);
-    void RemoveInputAction(std::string& actionName);
+    InputAction* CreateInputAction(const std::string& actionName);
+    void RemoveInputAction(const std::string& actionName);
+    
+    void BindKeyToInputAction(sf::Keyboard::Key key, const std::string& actionName);
+    void UnbindKeyToInputAction(sf::Keyboard::Key key, const std::string& actionName);
+
+    
+    InputAction* GetInputAction(const std::string& actionName);
+    
     
     virtual void DrawDebug() override;
     
 protected:
-    std::unordered_map<std::string, InputAction> InputActions;
+    std::unordered_map<std::size_t, InputAction*> InputActions;
     
 };
