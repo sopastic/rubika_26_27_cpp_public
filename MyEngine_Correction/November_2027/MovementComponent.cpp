@@ -1,10 +1,6 @@
 ﻿#include "MovementComponent.h"
 
-#include <iostream>
-#include <ostream>
-
 #include "Entity.h"
-#include "Logger.h"
 #include "ImGui/imgui.h"
 
 MovementComponent::MovementComponent(Entity& entity) : IComponent(entity)

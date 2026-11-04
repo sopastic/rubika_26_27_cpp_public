@@ -16,6 +16,7 @@
 
 #include "InputAction.h"
 #include "InputMgr.h"
+#include "../DynamicColliderComponent.h"
 #include "../MovementComponent.h"
 
 class MovementComponent;
@@ -68,6 +69,7 @@ int main()
             left->RegisterCallback("MoveLeft", [mc](float __f) {mc->MoveX(-0.05);}, mc);
             right->RegisterCallback("MoveRight", [mc](float __f) {mc->MoveX(0.05);}, mc);
         }
+        DynamicColliderComponent* dcc = entity->AddComponent<DynamicColliderComponent>();
         
     }
     std::vector<sf::Keyboard::Key> myKeys = gData.InputMgr->GetInputAction("Up")->GetKeys();

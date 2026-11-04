@@ -4,6 +4,8 @@
 #include <RenderComponent.h>
 #include <Imgui/imgui.h>
 
+#include "../DynamicColliderComponent.h"
+
 
 Entity::Entity(std::string friendlyName) : FriendlyName(friendlyName)
 {}
@@ -48,6 +50,11 @@ void Entity::Draw(sf::RenderWindow& window) const
 	if (r)
 	{
 		r->Draw(window);
+	}
+	DynamicColliderComponent* dcc = GetComponent<DynamicColliderComponent>();
+	if (dcc)
+	{
+		dcc->Draw(window);
 	}
 }
 

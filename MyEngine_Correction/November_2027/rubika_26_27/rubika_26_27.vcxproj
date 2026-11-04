@@ -208,6 +208,7 @@
     <ClCompile Include="..\Dependencies\Imgui\imgui_draw.cpp" />
     <ClCompile Include="..\Dependencies\Imgui\imgui_tables.cpp" />
     <ClCompile Include="..\Dependencies\Imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\DynamicColliderComponent.cpp" />
     <ClCompile Include="..\MovementComponent.cpp" />
     <ClCompile Include="DebugMgr.cpp" />
     <ClCompile Include="Entity.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="..\Dependencies\include\rapidxml\rapidxml_iterators.hpp" />
     <ClInclude Include="..\Dependencies\include\rapidxml\rapidxml_print.hpp" />
     <ClInclude Include="..\Dependencies\include\rapidxml\rapidxml_utils.hpp" />
+    <ClInclude Include="..\DynamicColliderComponent.h" />
     <ClInclude Include="..\MovementComponent.h" />
     <ClInclude Include="DebugMgr.h" />
     <ClInclude Include="Entity.h" />
