@@ -7,6 +7,13 @@
 class InputAction
 {
 public:
+	struct sCallbackInfo
+	{
+		std::string DebugName;
+		std::function<void(float)> Callback;
+		void* Owner = nullptr;
+	};
+	
 	InputAction() = default;
 	InputAction(const std::string& name);
 	void SetActionName(const std::string& name);
@@ -21,14 +28,11 @@ public:
 	std::size_t GetHash() const { return ActionNameHash; }
 	std::vector<sf::Keyboard::Key> GetKeys() const { return Keys; }
 	float GetValue() const { return Value; }
+	std::string GetActionName() const { return ActionName; }
+	std::vector<sCallbackInfo> GetCallbacks() const { return Callbacks; }
 
 private:
-	struct sCallbackInfo
-	{
-		std::string DebugName;
-		std::function<void(float)> Callback;
-		void* Owner = nullptr;
-	};
+	
 
 	std::string ActionName;
 	std::size_t ActionNameHash;

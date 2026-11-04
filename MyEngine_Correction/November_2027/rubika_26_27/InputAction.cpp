@@ -15,6 +15,7 @@ void InputAction::SetActionName(const std::string& name)
 void InputAction::SetValue(float value)
 {
     Value = value;
+    RunCallbacks();
 }
 
 void InputAction::RegisterCallback(const std::string& debugName, std::function<void(float)> callback, void* owner)
@@ -41,7 +42,7 @@ void InputAction::RunCallbacks()
     {
         for (const sCallbackInfo& cb : Callbacks)
         {
-            cb.Callback();
+            cb.Callback(Value);
         }
     }
 }

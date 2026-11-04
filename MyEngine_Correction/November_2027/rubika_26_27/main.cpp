@@ -54,15 +54,19 @@ int main()
         MovementComponent* mc = entity->AddComponent<MovementComponent>();
         {
             InputAction* up = gData.InputMgr->CreateInputAction("Up");
-            gData.InputMgr->CreateInputAction("Down");
-            gData.InputMgr->CreateInputAction("Left");
-            gData.InputMgr->CreateInputAction("Right");
+            InputAction* down = gData.InputMgr->CreateInputAction("Down");
+            InputAction* left = gData.InputMgr->CreateInputAction("Left");
+            InputAction* right = gData.InputMgr->CreateInputAction("Right");
     
             gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::W, "Up");
             gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::S, "Down");
+            gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::A, "Left");
+            gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::D, "Right");
     
-            up->RegisterCallback("MoveUp", [mc](float __f) {mc->MoveY(-1);}, mc);
-            up->RegisterCallback("MoveDown", [mc](float __f) {mc->MoveY(1);}, mc);
+            up->RegisterCallback("MoveUp", [mc](float __f) {mc->MoveY(-0.05);}, mc);
+            down->RegisterCallback("MoveDown", [mc](float __f) {mc->MoveY(0.05);}, mc);
+            left->RegisterCallback("MoveLeft", [mc](float __f) {mc->MoveX(-0.05);}, mc);
+            right->RegisterCallback("MoveRight", [mc](float __f) {mc->MoveX(0.05);}, mc);
         }
         
     }

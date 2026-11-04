@@ -25,15 +25,14 @@ void MovementComponent::Destroy()
 
 void MovementComponent::MoveX(float direction)
 {
-    sf::Vector2f worldPos = Transform->GetWorldPosition();
+    sf::Vector2f newPos = Transform->GetWorldPosition() + sf::Vector2f(direction, 0);
+    Transform->SetWorldPosition(newPos);
 }
 
 void MovementComponent::MoveY(float direction)
 {
-    
     sf::Vector2f newPos = Transform->GetWorldPosition() + sf::Vector2f(0, direction);
     Transform->SetWorldPosition(newPos);
-    std::cout << "Movement" << std::endl;
 }
 
 void MovementComponent::DrawDebug()

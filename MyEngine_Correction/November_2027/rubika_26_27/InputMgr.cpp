@@ -5,6 +5,7 @@
 
 #include "Globals.h"
 #include "Logger.h"
+#include "ImGui/imgui.h"
 
 void InputMgr::Init()
 {
@@ -24,7 +25,6 @@ void InputMgr::Update(float deltaTime)
         {
             if (sf::Keyboard::isKeyPressed(key))
             {
-                std::cout << "Key pressed" << std::endl;
                 it->second->SetValue(1.0f);
             }
             it->second->SetValue(0.0f);
@@ -89,5 +89,18 @@ void InputMgr::UnbindKeyToInputAction(sf::Keyboard::Key key, const std::string& 
 
 void InputMgr::DrawDebug()
 {
+#ifdef _USE_IMGUI
+    for (auto it = InputActions.begin(); it != InputActions.end(); ++it)
+    {
+        ImVec4 color = ImVec4(0, 200, 200, 255);
+        ImGui::TextColored(color, it->second->GetActionName().c_str());
+        ImGui::Text(std::to_string(it->second->GetValue()).c_str());
+        for (InputAction::sCallbackInfo cb : it->second->GetCallbacks())
+        {
+            color = ImVec4(100, 0, 100, 255);
+            ImGui::TextColored(color, cb.DebugName.c_str());
+        }
+    }
     
+#endif
 }
