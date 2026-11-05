@@ -23,9 +23,13 @@ public:
     sf::Vector2f GetOffset() const { return Offset; }
     sf::Vector2f GetPosition() const { return Position; }
     sf::Vector2f GetSize() const { return Size; }
+    unsigned int GetCollisionMask() const { return CollisionMask; }
     
     void SetSize(sf::Vector2f size) { Size = size; }
     void SetOffset(sf::Vector2f offset) { Offset = offset; }
+    sf::FloatRect GetCollider() const { return Collider; }
+    
+    void SetCollisionMask(unsigned int mask) { CollisionMask = mask; }
     
 protected:
     TransformComponent* Transform;
@@ -34,6 +38,7 @@ protected:
     sf::Vector2<float> Size = sf::Vector2(5.0f, 5.0f);
     sf::FloatRect Collider;
     sf::Vector2<float> Offset = sf::Vector2(0.0f, 0.0f);
+    unsigned int CollisionMask;
     
     void UpdateCollider();
 };

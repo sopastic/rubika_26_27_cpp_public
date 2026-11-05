@@ -3,6 +3,9 @@
 #include <string>
 #include <vector>
 
+#include "Obstacle.h"
+
+class Player;
 class Entity;
 
 namespace sf
@@ -22,6 +25,8 @@ public:
 	virtual void Destroy();
 
 	Entity* CreateEntity(const std::string& entityName);
+	Player* CreatePlayer(const std::string& playerName);
+	Obstacle* CreateObstacle(const std::string& ObstacleName);
 	void RemoveEntity(Entity* entity);
 
 	/*
@@ -39,4 +44,6 @@ protected:
 	std::string Name;
 	std::size_t Hash;
 	std::vector<Entity*> Entities;
+	
+	Player* GamePlayer;
 };

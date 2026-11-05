@@ -3,21 +3,16 @@
 #include <Imgui/imgui-SFML.h>
 
 #include <Globals.h>
-#include <TextureMgr.h>
 #include <SceneMgr.h>
 #include <Scene.h>
 #include <Profiler.h>
 #include <Logger.h>
-#include <Entity.h>
 #include <iostream>
-#include <TransformComponent.h>
 #include <RenderComponent.h>
-#include <SpriteDrawable.h>
 
 #include "InputAction.h"
 #include "InputMgr.h"
-#include "../DynamicColliderComponent.h"
-#include "../MovementComponent.h"
+#include "Player.h"
 
 class MovementComponent;
 
@@ -29,54 +24,13 @@ int main()
 
     ImGui::SFML::Init(window);
 
-    const char* texturePath = "../../../MyEngine/Ressources/IsaacSprite.png";
-    gData.TextureMgr->LoadTexture(texturePath);
-
-    Scene* scene = gData.SceneMgr->CreateScene("Main");
+    Scene* mainScene = gData.SceneMgr->CreateScene("Main");
     {
-        Entity* entity = scene->CreateEntity("MainEntity");
-        TransformComponent* tc = entity->AddComponent<TransformComponent>();
-        {
-            tc->SetWorldPosition(sf::Vector2f(100.f, 100.f));
-        }
-
-        RenderComponent* rc = entity->AddComponent<RenderComponent>();
-        {
-            SpriteDrawable* bodySprite = rc->AddNewDrawable<SpriteDrawable>("Body", sf::Vector2f(2, 0), 0, sf::Vector2f(1, 1));
-            bodySprite->SetVisibility(true);
-            bodySprite->SetTexture(texturePath);
-            bodySprite->SetAnimation("Body_Vertical");
-
-            SpriteDrawable* headSprite = rc->AddNewDrawable<SpriteDrawable>("Head", sf::Vector2f(-2.5f, -20), 0, sf::Vector2f(1, 1));
-            headSprite->SetVisibility(true);
-            headSprite->SetTexture(texturePath);
-            headSprite->SetAnimation("Head_Down");
-        }
-        MovementComponent* mc = entity->AddComponent<MovementComponent>();
-        {
-            InputAction* up = gData.InputMgr->CreateInputAction("Up");
-            InputAction* down = gData.InputMgr->CreateInputAction("Down");
-            InputAction* left = gData.InputMgr->CreateInputAction("Left");
-            InputAction* right = gData.InputMgr->CreateInputAction("Right");
-    
-            gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::W, "Up");
-            gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::S, "Down");
-            gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::A, "Left");
-            gData.InputMgr->BindKeyToInputAction(sf::Keyboard::Key::D, "Right");
-    
-            up->RegisterCallback("MoveUp", [mc](float __f) {mc->MoveY(-0.05);}, mc);
-            down->RegisterCallback("MoveDown", [mc](float __f) {mc->MoveY(0.05);}, mc);
-            left->RegisterCallback("MoveLeft", [mc](float __f) {mc->MoveX(-0.05);}, mc);
-            right->RegisterCallback("MoveRight", [mc](float __f) {mc->MoveX(0.05);}, mc);
-        }
-        DynamicColliderComponent* dcc = entity->AddComponent<DynamicColliderComponent>();
+        Player* player = mainScene->CreatePlayer("Player");
+        mainScene->CreateObstacle("Obstacle1");
+        mainScene->CreateObstacle("Obstacle2");
+        mainScene->CreateObstacle("Obstacle3");
         
-    }
-    std::vector<sf::Keyboard::Key> myKeys = gData.InputMgr->GetInputAction("Up")->GetKeys();
-    std::cout << myKeys.size() << std::endl;
-    for (sf::Keyboard::Key key : myKeys)
-    {
-        std::cout << isKeyPressed(key) << std::endl;
     }
     
     gData.SceneMgr->SetActiveScene("Main");

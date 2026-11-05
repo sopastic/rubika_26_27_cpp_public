@@ -1,14 +1,17 @@
 #include "Entity.h"
 
 #include <IComponent.h>
+#include <iostream>
 #include <RenderComponent.h>
 #include <Imgui/imgui.h>
 
-#include "../DynamicColliderComponent.h"
+#include "DynamicColliderComponent.h"
+#include "Logger.h"
 
 
 Entity::Entity(std::string friendlyName) : FriendlyName(friendlyName)
-{}
+{
+}
 
 Entity::~Entity()
 {
@@ -43,6 +46,25 @@ void Entity::Destroy()
 		c->Destroy();
 	}
 }
+
+void Entity::AddTag(unsigned int tag)
+{
+	if (!HasTag(tag)) Tags |= tag;
+}
+
+void Entity::RemoveTag(unsigned int tag)
+{
+	if (HasTag(tag)) Tags &= ~tag;
+}
+
+bool Entity::HasTag(unsigned int tag)
+{
+	unsigned int tagsTemp = Tags;
+	tagsTemp &= tag;
+	bool hasTag = tagsTemp == tag;
+	return hasTag;
+}
+
 
 void Entity::Draw(sf::RenderWindow& window) const
 {
